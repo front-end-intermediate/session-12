@@ -542,7 +542,7 @@ Keeping the existing vanilla JS app, add the following to the html. Note the new
 <script type="text/babel" src="js/react-babel.js"></script>
 ```
 
-Create the new js file and implement the main app component.
+Create the new js file and implement the main App component.
 
 ```js
 class App extends React.Component {
@@ -653,16 +653,18 @@ class Pirates extends React.Component {
 }
 ```
 
-Then add the addItem function:
+Then add the `addItem` function:
 
 ```js
 class Pirates extends React.Component {
+
   addItem = (e) => {
     e.preventDefault()
     const name = this.input.value
     this.input.value = ''
     this.props.store.dispatch()
   }
+
   render() {
     return (
       <React.Fragment>
@@ -680,9 +682,18 @@ class Pirates extends React.Component {
 }
 ```
 
-We used `this.props.store` above.
+Note that we used `this.props.store` above.
 
-Pass the store to the Pirate component via props from App
+Make the store available to App:
+
+```js
+ReactDOM.render(
+  <App store={store} />,
+  document.getElementById('app')
+)
+```
+
+Pass the store to the Pirate component via props:
 
 ```js
 // make the store available to Pirates
@@ -696,11 +707,6 @@ class App extends React.Component {
     )
   }
 }
-// make the store available to App
-ReactDOM.render(
-  <App store={store} />,
-  document.getElementById('app')
-)
 ```
 
 Now that the Pirates component has access to store we can complete the addItem function:
@@ -720,7 +726,7 @@ addItem = (e) => {
 
 You should now be able to add a pirate to state. 
 
-Note that it shows up in the vanilla js (VJS) app. VJS is using the same store as our react app. We haven't implemented list in our React app yet. In effect, we have two apps which are sharing the same state.
+Note that it shows up in the vanilla js (VJS) app. VJS is using the same store as our react app and we haven't implemented list in our React app yet. In effect, we have two apps which are sharing the same state.
 
 ## Dispatching Weapons
 
@@ -760,7 +766,7 @@ class Weapons extends React.Component {
 }
 ```
 
-Add the same addItem function to Weapons:
+Add the addItem function to Weapons:
 
 ```js
 class Weapons extends React.Component {
@@ -793,8 +799,6 @@ class Weapons extends React.Component {
 ```
 
 You should now be able to add a weapon to state.
-
-Now, in order to get the fields to work we will render the Lists.
 
 ## Render the Lists
 
@@ -847,7 +851,7 @@ function List (props) {
 }
 ```
 
-Now if we add a new pirate we are still not seeing the view yet. The list component isn't receiving any items.
+The list component isn't receiving any items.
 
 This is because our App component isn't listening for changes to state. In our VJS app we used `store.subscribe()` to listen for updates to state:
 
@@ -888,11 +892,11 @@ class App extends React.Component {
 }
 ```
 
-`forceUpdate()` triggers React's render() method. It is a bit of a hack at the moment but I cannot see adding state to the app component at this time.
+`forceUpdate()` triggers React's render() method. It is a bit of a hack at the moment but we will get rid of it soon. The alternative would be to add state to the App component but since we are going to implement state outside the react app we will live with it for now.
 
 ## Remove Items
 
-Add remove item to react.
+Add remove item to the react slice.
 
 The List component should take another prop - remove: `<button onClick={ () => props.remove(item)}>✖︎</button>`.
 
@@ -913,7 +917,7 @@ function List (props) {
 }
 ```
 
-We pass in the item that should be removed. Now we need to create `removeItem()` inside the Pirates and Weapons components as well as pass it to the List component:
+We passed in the item that should be removed. Now we need to create `removeItem()` inside the Pirates and Weapons components as well as pass it to the List component:
 
 ```js
 removeItem = (weapon) => {
@@ -967,7 +971,7 @@ class Pirates extends React.Component {
 }
 ```
 
-In the Weapons component.
+And in the Weapons component.
 
 ```js
 class Weapons extends React.Component {
@@ -1010,7 +1014,7 @@ class Weapons extends React.Component {
 
 Add the toggle functionality that marks a Pirate as spotted.
 
-The action in question is togglePirate. Add a method to the Pirate component:
+The action in `scripts.js` is `togglePirate`. Add a method to the Pirate component:
 
 ```js
 toggleItem = (id) => {
@@ -1081,7 +1085,26 @@ function List (props) {
 }
 ```
 
-And add styling:
+Because weapons don't use toggle we need to test for the function before we call it:
+
+```js
+function List (props) {
+  return (
+    <ul>
+      {props.items.map((item) => (
+        <li key={item.id}>
+          <span onClick={ () => props.toggle && props.toggle(item.id)}>
+            {item.name}
+          </span>
+          <button onClick={ () => props.remove(item)}>X</button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+Now we can add styling:
 
 ```js
 function List (props) {
@@ -1101,35 +1124,91 @@ function List (props) {
 }
 ```
 
-<!-- // NEW -->
-
 ## Asynchronous Data
 
-Add a script for the api.
+Delete the VJS UI
+
+```html
+<!-- <div>
+  <h1>Pirate List</h1>
+  <input id='pirate' type='text' placeholder="Add Pirate">
+  <button id='pirateBtn'>Add Pirate</button>
+  <ul id='pirates'></ul>
+</div>
+
+<div>
+  <h1>Weapon List</h1>
+  <input id='weapon' type='text' placeholder="Add Weapon">
+  <button id='weaponBtn'>Add Weapon</button>
+  <ul id='weapons'></ul>
+</div> -->
+```
+
+Disconnect from `dom.js`.
+
+```html
+<!-- <script type='text/javascript' src="js/dom.js"></script> -->
+```
+
+And add some of the script in `dom.js` to our `react-babel.js` script:
+
+```js
+const store = Redux.createStore(Redux.combineReducers({
+  pirates,
+  weapons
+}), Redux.applyMiddleware(checker, logger))
+
+store.subscribe(() => {
+  const { weapons, pirates } = store.getState()
+
+  // document.getElementById('pirates').innerHTML = ''
+  // document.getElementById('weapons').innerHTML = ''
+
+  // pirates.forEach(addPirateToDom)
+  // weapons.forEach(addWeaponToDom)
+})
+
+function generateId() {
+  return Date.now()
+}
+```
+
+Examine and add a script for a mock api.
 
 ```html
 <script src="http://daniel.deverell.com/index.js"></script>
 ```
 
-Offers an IIFE.
+Its offers an IIFE. Try examining it in the console.
 
 ```js
 > API
 ```
 
-A fail function (once every five times). Default values via fetch pirates and fetch weapons.. 
+And a 'fail' function (once every five times). Default values via fetch pirates and fetch weapons.
+
+`App`:
 
 ```js
-Promise.all([
-  API.fetchPirates(),
-  API.fetchWeapons()
-]).then( ([pirates, weapons]) => {
-  console.log('pirates', pirates)
-  console.log('weapons', weapons)
-})
+  componentDidMount () {
 
-store.subscribe( () => this.forceUpdate())
+    const { store } = this.props
+
+    Promise.all([
+      API.fetchPirates(),
+      API.fetchWeapons()
+    ]).then( ([pirates, weapons]) => {
+      console.log('pirates', pirates)
+      console.log('weapons', weapons)
+    })
+    
+    store.subscribe( () => this.forceUpdate())
+  }
 ```
+
+Instead of logging we want to add the tiems to our Redux store. But we do not have an appropriate action creator for multiple items.
+
+In `scripts.js`:
 
 ```js
 const RECEIVE_DATA = 'RECEIVE_DATA'
@@ -1144,7 +1223,7 @@ function receiveDataAction( pirates, weapons) {
 ...
 function pirates (state = [], action) {
   switch(action.type) {
-    case ADD_PIRATE : // use the variable
+    case ADD_PIRATE : 
     return state.concat([action.pirate])
     case REMOVE_PIRATE :
     return state.filter((pirate) => pirate.id !== action.id)
@@ -1173,6 +1252,8 @@ function weapons (state = [], action) {
 }
 ```
 
+Now we can run our action using `store.dispatch`:
+
 ```js
 componentDidMount () {
   const { store } = this.props
@@ -1192,6 +1273,10 @@ componentDidMount () {
 
 We will use the Redux store for the state.
 
+Place a new piece of state inside the Redux store using a new reducer function.
+
+In `scripts.js`:
+
 ```js
 function loading(state = true, action) {
   switch (action.type) {
@@ -1203,6 +1288,7 @@ function loading(state = true, action) {
 }
 ```
 
+Add the reducer to our reducers list:
 
 ```js
 const store = Redux.createStore(Redux.combineReducers({
@@ -1212,22 +1298,11 @@ const store = Redux.createStore(Redux.combineReducers({
 }), Redux.applyMiddleware(checker, logger))
 ```
 
+And finally, add an if statement that checks for loading to the render function of App:
+
 ```js
 class App extends React.Component {
-
-  componentDidMount () {
-    const { store } = this.props
-  
-    Promise.all([
-      API.fetchPirates(),
-      API.fetchWeapons()
-    ]).then( ([pirates, weapons]) => {
-      store.dispatch(receiveDataAction(pirates, weapons))
-      })
-    
-    store.subscribe( () => this.forceUpdate())
-  }
-
+...
   render(){
     const { store } = this.props
     const { pirates, weapons, loading } = store.getState()
@@ -1236,17 +1311,9 @@ class App extends React.Component {
       return <h3>Loading...</h3>
     }
 
-    return(
-      <React.Fragment>
-        <Pirates pirates={pirates} store ={store} />
-        <Weapons weapons={weapons} store ={store} />
-      </React.Fragment>
-    )
-  }
+...
 }
 ```
 
-### Deleting Items
 
-Update and and database.
 
