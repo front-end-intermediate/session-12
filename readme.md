@@ -6,6 +6,8 @@ Work on your final projects. They should consist of a full stack (front and back
 
 ## Reading
 
+A [Redux crash course](https://www.youtube.com/watch?v=93p3LxR9xfM) on YouTube.
+
 ## A Simple Redux App
 
 ![Image of Interface](/other/interface.png)
