@@ -4,14 +4,13 @@
 
 Work on your final projects. They should consist of a full stack (front and back end) master / detail view that uses React for the front end and has a backend which can be done in Express with mLab. You can use Firebase if you wish however be sure to use the same version of re-base that we used in session 10 - unless you really know what you are doing.
 
-Implement the React portion of the exercise using Create React App.
-
 ## Reading
 
 ## A Simple Redux App
 
 ![Image of Interface](/other/interface.png)
 
+```html
 <pre>
 App
   Nav
@@ -22,6 +21,7 @@ App
         UserAvatar (needs user prop)
     Content
 </pre>
+```
 
 This app has the user’s information displayed in two places: in the nav bar at the top-right, and in the sidebar next to the main content.
 
