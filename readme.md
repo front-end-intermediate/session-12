@@ -152,39 +152,10 @@ class App extends Component {
 export default App;
 ```
 
-Pass the user property to Nav > UserAvatar:
-
-`Nav.js`:
-
-```js
-import React from 'react';
-
-import UserAvatar from './UserAvatar'
-
-const Nav = ({user}) => (
-  <div className="nav">
-    <UserAvatar user={user} />
-  </div>
-);
-
-export default Nav
-```
-
-`UserAvatar.js`:
-
-```js
-import React from 'react';
-
-const UserAvatar = () => (
-  <div className="user-avatar">
-    UserAvatar
-  </div>
-);
-
-export default UserAvatar
-```
-
 ## Prop Drilling the Nav
+
+Pass the user property from Nav > UserAvatar:
+
 
 `Nav.js`:
 
@@ -293,13 +264,13 @@ const UserStats = ({ user }) => (
 export default UserStats
 ```
 
-Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling can be annoying to write and it gets more annoying when you have to pass down a lot of props (instead of just one).
+Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling is annoying to write and it gets worse when you have to pass down a lot of props (instead of just one).
 
 There’s a bigger downside to prop drilling though: it creates coupling between components that would otherwise be decoupled. In the example above, Nav needs to accept a user prop and pass it down to UserAvatar, even though Nav does not have any need for the user otherwise.
 
 Tightly-coupled components (like ones that forward props down to their children) are more difficult to reuse, because you’ve got to wire them up with their new parents whenever you use one in a new location.
 
-## Redux
+## Redux to the Rescue
 
 `npm i redux react-redux -S`
 
@@ -311,14 +282,13 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 
 import { createStore } from "redux";
-import { connect, Provider } from "react-redux";
+import { Provider } from "react-redux";
 
 const initialState = {};
 
 function reducer(state = initialState, action) {
   switch (action.type) {
-    // Respond to the SET_USER action and update
-    // the state accordingly
+    // Respond to the SET_USER action and update the state accordingly
     case "SET_USER":
       return {
         ...state,
@@ -343,11 +313,6 @@ store.dispatch({
   }
 });
 
-// This mapStateToProps function extracts a single key from state (user) and passes it as the `user` prop
-const mapStateToProps = state => ({
-  user: state.user
-});
-
 ReactDOM.render(
   <Provider store={store}>
     <App />
@@ -368,13 +333,14 @@ import Body from './Body'
 
 const App = () => (
   <div className="app">
-    {/* <Nav /> */}
     <Body />
   </div>
 );
 
 export default App;
 ```
+
+Body doesn't need to know about `user` anymore:
 
 ```js
 import React from 'react';
@@ -393,7 +359,7 @@ const Body = () => (
 export default Body
 ```
 
-Sidebar doesn't need to know about `user` anymore.
+Sidebar doesn't need to know about `user` anymore:
 
 `Sidebar.js`:
 
@@ -419,15 +385,12 @@ import { connect } from "react-redux";
 
 import UserAvatar from './UserAvatar'
 
-// This mapStateToProps function extracts a single
-// key from state (user) and passes it as the `user` prop
+// mapStateToProps function extracts a single key from state (user) and passes it as the `user` prop
 const mapStateToProps = state => ({
   user: state.user
 });
 
-// connect() UserStats so it receives the `user` directly,
-// without having to receive it from a component above
-// (both use the same mapStateToProps function)
+// connect() UserStats so it receives the `user` without having to receive it from a component above
 const UserStats = connect(mapStateToProps)(({ user }) => (
   <div className="user-stats">
     <div>
@@ -444,26 +407,20 @@ const UserStats = connect(mapStateToProps)(({ user }) => (
 export default UserStats
 ```
 
-`UserAvatar` also needs to know about the user in state. Just as in UserStats we import `connect` and use `mapSatateToProps`.
+`UserAvatar` also needs to know about the user in state. Just as in `UserStats` we import `connect` and use `mapSatateToProps`.
 
 ```js
 import React from 'react';
 
+// import connect
 import { connect } from "react-redux";
 
-// This mapStateToProps function extracts a single
-// key from state (user) and passes it as the `user` prop
+// This mapStateToProps function extracts a single key from state (user) and passes it as the `user` prop
 const mapStateToProps = state => ({
   user: state.user
 });
 
-
-// connect() UserAvatar so it receives the `user` directly,
-// without having to receive it from a component above
-
-// could also split this up into 2 variables:
-//   const UserAvatarAtom = ({ user, size }) => ( ... )
-//   const UserAvatar = connect(mapStateToProps)(UserAvatarAtom);
+// connect() UserAvatar so it can receive the `user` without having to receive it from a component above
 const UserAvatar = connect(mapStateToProps)(({ user, size }) => (
   <img
     className={`user-avatar ${size || ""}`}
@@ -477,7 +434,7 @@ export default UserAvatar
 
 Let's do the `App > Nav` portion.
 
-Uncomment `<Nav />` in `App.js`:
+Add `<Nav />` in `App.js`:
 
 ```js
 const App = () => (
