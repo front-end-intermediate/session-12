@@ -33,7 +33,9 @@ and
 
 `App > Body > Sidebar > UserStats > UserAvatar`
 
-We will use [React Snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets) to create a few components.
+cd into `redux-test` and run `npm i`.
+
+You can use [React Snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets) to create a few components.
 
 <!-- * A react class component - rcc (version 2)
 
@@ -73,7 +75,6 @@ export default Nav
 ## The React App - props
 
 * Create `App.js` with dependencies on `Nav` and `Body` using `rcc (version 2)`.
-* Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
 
 ```js
 import React, { Component } from 'react';
@@ -84,7 +85,7 @@ import Body from './Body'
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <div className="app">
         <Nav />
         <Body />
       </div>
@@ -94,6 +95,8 @@ class App extends Component {
 
 export default App;
 ```
+
+* Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
 
 ```js
 import React from 'react';
