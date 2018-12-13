@@ -39,42 +39,7 @@ cd into `redux-test` and run `npm i`.
 
 You can use [React Snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets) to create a few components.
 
-<!-- * A react class component - rcc (version 2)
-
-```js
-import React, { Component } from 'react'
-
-export class App extends Component {
-  render() {
-    return (
-      <div>
-
-      </div>
-    )
-  }
-}
-
-export default App
-```
-
-* A react functional component - rfce
-
-```js
-import React from 'react'
-
-function Nav() {
-  return (
-    <div>
-
-    </div>
-  )
-}
-
-export default Nav
-
-``` -->
-
-## The React App - props
+### The React App - props
 
 * Create `App.js` with dependencies on `Nav` and `Body` using `rcc (version 2)`.
 
@@ -116,7 +81,7 @@ export default Nav
 
 Run the app with `npm start`.
 
-## Prop Drilling
+### Prop Drilling
 
 App initializes the state to contain the `user` object.
 
@@ -154,7 +119,7 @@ class App extends Component {
 export default App;
 ```
 
-## Prop Drilling the Nav
+### Prop Drilling the Nav
 
 Pass the user property from Nav > UserAvatar:
 
@@ -175,7 +140,7 @@ const Nav = ({ user }) => (
 export default Nav
 ```
 
-## Prop Drilling the Sidebar
+### Prop Drilling the Sidebar
 
 Body
 
@@ -272,7 +237,7 @@ There’s a bigger downside to prop drilling though: it creates coupling between
 
 Tightly-coupled components (like ones that forward props down to their children) are more difficult to reuse, because you’ve got to wire them up with their new parents whenever you use one in a new location.
 
-## Redux to the Rescue
+### Redux to the Rescue
 
 `npm i redux react-redux -S`
 
