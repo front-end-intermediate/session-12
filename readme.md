@@ -525,7 +525,7 @@ This is a big win in terms of decoupling. Nav, Body, and Sidebar are no longer a
 
 ## Asynchronous Data
 
-We will continue with the project from last class.
+We will continue with the project from [last class](https://github.com/front-end-intermediate/session-11#adding-react) before moving forward with the below.
 
 Add a script for the api.
 
