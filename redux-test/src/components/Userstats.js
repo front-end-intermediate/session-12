@@ -1,13 +1,11 @@
-import React from 'react'
+import React from 'react';
 
 import UserAvatar from './UserAvatar'
 
-function Userstats() {
-  return (
-    <div>
-      <UserAvatar />
-    </div>
-  )
-}
+const UserStats = () => (
+  <div className="UserStats">
+    <UserAvatar />
+  </div>
+);
 
-export default Userstats
+export default UserStats

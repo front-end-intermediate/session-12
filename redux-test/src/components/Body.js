@@ -1,13 +1,13 @@
-import React from 'react'
+import React from 'react';
 
 import Sidebar from './Sidebar'
+import Content from './Content'
 
-function Body() {
-  return (
-    <div>
-      <Sidebar />
-    </div>
-  )
-}
+const Body = () => (
+  <div className="body">
+    <Sidebar />
+    <Content />
+  </div>
+);
 
 export default Body

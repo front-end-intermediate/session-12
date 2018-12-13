@@ -1,11 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-function UserAvatar() {
-  return (
-    <div>
-      User Avatar
-    </div>
-  )
-}
+const UserAvatar = () => (
+  <div className="UserAvatar">
+    User Avatar
+  </div>
+);
 
 export default UserAvatar

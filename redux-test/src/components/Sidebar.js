@@ -1,13 +1,11 @@
-import React from 'react'
+import React from 'react';
 
-import Userstats from './Userstats'
+import UserStats from './UserStats'
 
-function Sidebar() {
-  return (
-    <div>
-      <Userstats />
-    </div>
-  )
-}
+const Sidebar = () => (
+  <div className="sidebar">
+    <UserStats />
+  </div>
+);
 
 export default Sidebar
