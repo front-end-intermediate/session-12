@@ -51,7 +51,7 @@ and
 
 We will use [React Snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets) to create a few components.
 
-* A react class component - rcc (version 2)
+<!-- * A react class component - rcc (version 2)
 
 ```js
 import React, { Component } from 'react'
@@ -84,14 +84,50 @@ function Nav() {
 
 export default Nav
 
-```
+``` -->
 
 ## The React App - props
 
 * Create `App.js` with dependencies on `Nav` and `Body` using `rcc (version 2)`.
 * Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
 
+```js
+import React, { Component } from 'react';
+
+import Nav from './Nav'
+import Body from './Body'
+
+class App extends Component {
+  render() {
+    return (
+      <div className="App">
+        <Nav />
+        <Body />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+```js
+import React from 'react';
+
+import UserAvatar from './UserAvatar'
+
+const Nav = () => (
+  <div className="nav">
+    <UserAvatar />
+  </div>
+);
+
+export default Nav
+```
+
 Run the app with `npm start`.
+
+## Prop Drilling
 
 App initializes the state to contain the `user` object.
 
@@ -161,7 +197,27 @@ const UserAvatar = () => (
 export default UserAvatar
 ```
 
+## Prop Drilling the Nav
+
+`Nav.js`:
+
+```js
+import React from 'react';
+
+import UserAvatar from './UserAvatar'
+
+const Nav = ({ user }) => (
+  <div className="nav">
+    <UserAvatar user={user} size="small" />
+  </div>
+);
+
+export default Nav
+```
+
 ## Prop Drilling the Sidebar
+
+Body
 
 ```js
 import React from 'react';
@@ -169,9 +225,9 @@ import React from 'react';
 import Sidebar from './Sidebar'
 import Content from './Content'
 
-const Body = () => (
+const Body = ({user}) => (
   <div className="body">
-    <Sidebar />
+    <Sidebar user={user} />
     <Content />
   </div>
 );
@@ -184,11 +240,11 @@ Sidebar
 ```js
 import React from 'react';
 
-import UserStats from './Userstats'
+import UserStats from './UserStats'
 
-const Sidebar = () => (
+const Sidebar = ({user}) => (
   <div className="sidebar">
-    <UserStats />
+    <UserStats user={user} />
   </div>
 );
 
@@ -202,30 +258,270 @@ import React from 'react';
 
 import UserAvatar from './UserAvatar'
 
-const UserStats = () => (
+const UserStats = ({user}) => (
   <div className="UserStats">
-    <UserAvatar />
+    <UserAvatar user={user} />
   </div>
 );
 
 export default UserStats
 ```
 
-In terms of prop drilling - it works just fine. Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling can be annoying to write and it gets more annoying when you have to pass down a lot of props (instead of just one).
+`UserAvatar.js`:
+
+```js
+import React from 'react';
+
+const UserAvatar = ({ user, size }) => (
+  <img
+    className={`user-avatar ${size || ""}`}
+    alt="user avatar"
+    src={user.avatar}
+  />
+);
+
+export default UserAvatar
+```
+
+Edit UserStats:
+
+```js
+import React from 'react';
+
+import UserAvatar from './UserAvatar'
+
+const UserStats = ({ user }) => (
+  <div className="user-stats">
+    <div>
+      <UserAvatar user={user} />
+      {user.name}
+    </div>
+    <div className="stats">
+      <div>{user.followers} Followers</div>
+      <div>Following {user.following}</div>
+    </div>
+  </div>
+);
+
+export default UserStats
+```
+
+Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling can be annoying to write and it gets more annoying when you have to pass down a lot of props (instead of just one).
 
 There’s a bigger downside to prop drilling though: it creates coupling between components that would otherwise be decoupled. In the example above, Nav needs to accept a user prop and pass it down to UserAvatar, even though Nav does not have any need for the user otherwise.
 
 Tightly-coupled components (like ones that forward props down to their children) are more difficult to reuse, because you’ve got to wire them up with their new parents whenever you use one in a new location.
 
-## DEMO2
+## Redux
+
+`npm i redux react-redux -S`
+
+We will start with `index.js`:
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './components/App';
+
+import { createStore } from "redux";
+import { connect, Provider } from "react-redux";
+
+const initialState = {};
+
+function reducer(state = initialState, action) {
+  switch (action.type) {
+    // Respond to the SET_USER action and update
+    // the state accordingly
+    case "SET_USER":
+      return {
+        ...state,
+        user: action.user
+      };
+    default:
+      return state;
+  }
+}
+
+// Create the store with the reducer
+const store = createStore(reducer);
+
+// Dispatch an action to set the user (since initial state is empty)
+store.dispatch({
+  type: "SET_USER",
+  user: {
+    avatar: "https://s.gravatar.com/avatar/3edd11d6747465b235c79bafdb85abe8?s=80",
+    name: "Daniel",
+    followers: 1234,
+    following: 123
+  }
+});
+
+// This mapStateToProps function extracts a single key from state (user) and passes it as the `user` prop
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.querySelector("#root")
+);
+```
+
+App doesn't hold state anymore, so it can be a stateless function.
+
+`App.js`:
+
+```js
+import React from 'react';
+
+import Nav from './Nav'
+import Body from './Body'
+
+const App = () => (
+  <div className="app">
+    {/* <Nav /> */}
+    <Body />
+  </div>
+);
+
+export default App;
+```
+
+```js
+import React from 'react';
+
+import Sidebar from './Sidebar'
+import Content from './Content'
+
+// Body doesn't need to know about `user` anymore
+const Body = () => (
+  <div className="body">
+    <Sidebar />
+    <Content />
+  </div>
+);
+
+export default Body
+```
+
+Sidebar doesn't need to know about `user` anymore.
+
+`Sidebar.js`:
+
+```js
+import React from 'react';
+
+import UserStats from './UserStats'
+
+const Sidebar = () => (
+  <div className="sidebar">
+    <UserStats />
+  </div>
+);
+
+export default Sidebar
+```
+
+UserStats _does_ need to know about the user. So we load `connect` from `react-redux` and `mapSatateToProps`.
+
+```js
+import React from 'react';
+import { connect } from "react-redux";
+
+import UserAvatar from './UserAvatar'
+
+// This mapStateToProps function extracts a single
+// key from state (user) and passes it as the `user` prop
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+// connect() UserStats so it receives the `user` directly,
+// without having to receive it from a component above
+// (both use the same mapStateToProps function)
+const UserStats = connect(mapStateToProps)(({ user }) => (
+  <div className="user-stats">
+    <div>
+      <UserAvatar />
+      {user.name}
+    </div>
+    <div className="stats">
+      <div>{user.followers} Followers</div>
+      <div>Following {user.following}</div>
+    </div>
+  </div>
+));
+
+export default UserStats
+```
+
+`UserAvatar` also needs to know about the user in state. Just as in UserStats we import `connect` and use `mapSatateToProps`.
+
+```js
+import React from 'react';
+
+import { connect } from "react-redux";
+
+// This mapStateToProps function extracts a single
+// key from state (user) and passes it as the `user` prop
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+
+// connect() UserAvatar so it receives the `user` directly,
+// without having to receive it from a component above
+
+// could also split this up into 2 variables:
+//   const UserAvatarAtom = ({ user, size }) => ( ... )
+//   const UserAvatar = connect(mapStateToProps)(UserAvatarAtom);
+const UserAvatar = connect(mapStateToProps)(({ user, size }) => (
+  <img
+    className={`user-avatar ${size || ""}`}
+    alt="user avatar"
+    src={user.avatar}
+  />
+));
+
+export default UserAvatar
+```
+
+Let's do the `App > Nav` portion.
+
+Uncomment `<Nav />` in `App.js`:
+
+```js
+const App = () => (
+  <div className="app">
+    <Nav />
+    <Body />
+  </div>
+);
+```
+
+Nav doesn't need to know about `user` anymore.
+
+`Nav.js`:
+
+```js
+import React from 'react';
+
+import UserAvatar from './UserAvatar'
+
+const Nav = () => (
+  <div className="nav">
+    <UserAvatar size="small" />
+  </div>
+);
+
+export default Nav
+```
 
 The user info has been moved to the Redux store, which means we can use react-redux’s connect function to directly inject the user prop into components that need it.
 
-This is a big win in terms of decoupling. Take a look at Nav, Body, and Sidebar and you’ll see that they’re no longer accepting and passing dow the user prop. No more needless coupling.
-
-
-
-
+This is a big win in terms of decoupling. Nav, Body, and Sidebar are no longer accepting and passing down the user prop. 
 
 ## Asynchronous Data
 
