@@ -41,7 +41,46 @@ You can use [React Snippets](https://marketplace.visualstudio.com/items?itemName
 
 ### The React App - props
 
-* Create `App.js` with dependencies on `Nav` and `Body` using `rcc (version 2)`.
+* Create `App.js` with a dependency on `Body` using `rcc (version 2)`.
+
+```js
+import React, { Component } from 'react';
+
+import Body from './Body'
+
+class App extends Component {
+  render() {
+    return (
+      <div className="app">
+        <Body />
+      </div>
+    );
+  }
+}
+
+export default App;
+```
+
+Run the app with `npm start` and examine the app in the React dev tool.
+
+* Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
+* Add a `className`
+
+```js
+import React from 'react';
+
+import UserAvatar from './UserAvatar'
+
+const Nav = () => (
+  <div className="nav">
+    <UserAvatar />
+  </div>
+);
+
+export default Nav
+```
+
+Import `<Nav />` to `App` and render it:
 
 ```js
 import React, { Component } from 'react';
@@ -62,24 +101,6 @@ class App extends Component {
 
 export default App;
 ```
-
-* Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
-
-```js
-import React from 'react';
-
-import UserAvatar from './UserAvatar'
-
-const Nav = () => (
-  <div className="nav">
-    <UserAvatar />
-  </div>
-);
-
-export default Nav
-```
-
-Run the app with `npm start`.
 
 ### Prop Drilling
 
@@ -121,8 +142,7 @@ export default App;
 
 ### Prop Drilling the Nav
 
-Pass the user property from Nav > UserAvatar:
-
+Pass the user property from `Nav > UserAvatar`:
 
 `Nav.js`:
 
@@ -231,17 +251,69 @@ const UserStats = ({ user }) => (
 export default UserStats
 ```
 
-Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling is annoying to write and it gets worse when you have to pass down a lot of props (instead of just one).
+Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling is annoying to write and it gets worse when you have to pass down a lot of props.
 
-There’s a bigger downside to prop drilling though: it creates coupling between components that would otherwise be decoupled. In the example above, Nav needs to accept a user prop and pass it down to UserAvatar, even though Nav does not have any need for the user otherwise.
+There’s a bigger downside to prop drilling though: it creates coupling between components that would otherwise be decoupled. In the example above, `Nav` needs to accept a user prop and pass it down to `UserAvatar`, even though Nav does not really have any need for the user.
 
 Tightly-coupled components (like ones that forward props down to their children) are more difficult to reuse, because you’ve got to wire them up with their new parents whenever you use one in a new location.
 
-### Redux to the Rescue
+### Redux / React-Redux to the Rescue
 
 `npm i redux react-redux -S`
 
-We will start with `index.js`:
+We will start with `index.js`.
+
+First we need to import two methods and set up the provider:
+
+```js
+import { createStore } from "redux";
+import { Provider } from "react-redux";
+
+...
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.querySelector("#root")
+);
+```
+
+Set an intial state, create a reducer and a store:
+
+```js
+function reducer(state = initialState, action) {
+  switch (action.type) {
+    // Respond to the SET_USER action and update the state accordingly
+    case "SET_USER":
+      return {
+        ...state,
+        user: action.user
+      };
+    default:
+      return state;
+  }
+}
+
+const store = createStore(reducer);
+```
+
+Finally we set up our reducer function:
+
+```js
+// Dispatch an action to set the user (since initial state is empty)
+store.dispatch({
+  type: "SET_USER",
+  user: {
+    avatar: "https://s.gravatar.com/avatar/3edd11d6747465b235c79bafdb85abe8?s=80",
+    name: "Daniel",
+    followers: 1234,
+    following: 123
+  }
+});
+```
+
+Here is the entire `index.js`:
 
 ```js
 import React from 'react';
@@ -287,6 +359,10 @@ ReactDOM.render(
   document.querySelector("#root")
 );
 ```
+
+Examine the Provider in React tools. 
+
+Now we can simplify our operations and access data without passing props.
 
 App doesn't hold state anymore, so it can be a stateless function.
 
