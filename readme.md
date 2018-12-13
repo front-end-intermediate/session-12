@@ -12,20 +12,6 @@ Implement the React portion of the exercise using Create React App.
 
 ![Image of Interface](/other/interface.png)
 
-`npx create-react-app redux-test`
-
-Delete all css, App and related. Create a components folder in src.
-
-`index.js`:
-
-```js
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './components/App';
-
-ReactDOM.render(<App />, document.getElementById('root'));
-```
-
 <pre>
 App
   Nav
