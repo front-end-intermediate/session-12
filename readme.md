@@ -11,7 +11,6 @@ Work on your final projects. They should consist of a full stack (front and back
 ![Image of Interface](/other/interface.png)
 
 ```html
-<pre>
 App
   Nav
     UserAvatar (needs user prop)
@@ -20,7 +19,6 @@ App
       Userstats
         UserAvatar (needs user prop)
     Content
-</pre>
 ```
 
 This app has the user’s information displayed in two places: in the nav bar at the top-right, and in the sidebar next to the main content.
