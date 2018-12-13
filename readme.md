@@ -51,41 +51,45 @@ and
 
 We will use [React Snippets](https://marketplace.visualstudio.com/items?itemName=dsznajder.es7-react-js-snippets) to create a few components.
 
-```js
-// rcc (version 2)
-import React, { Component } from 'react';
+* A react class component - rcc (version 2)
 
-class Body extends Component {
+```js
+import React, { Component } from 'react'
+
+export class App extends Component {
   render() {
     return (
       <div>
-        
+
       </div>
-    );
+    )
   }
 }
 
-export default Body;
+export default App
+```
 
-// rfce
+* A react functional component - rfce
+
+```js
 import React from 'react'
 
-function Body() {
+function Nav() {
   return (
     <div>
-      
+
     </div>
   )
 }
 
-export default Body
+export default Nav
+
 ```
 
 ## The React App - props
 
-Create `App.js` with dependencies on `Nav` and `Body` using `rcc (version 2)`.
-
-Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
+* Create `App.js` with dependencies on `Nav` and `Body` using `rcc (version 2)`.
+* Create `Nav.js` with a dependency on `UserAvatar` using `rfce`.
 
 Run the app with `npm start`.
 
@@ -125,7 +129,9 @@ class App extends Component {
 export default App;
 ```
 
-`Nav.sj`:
+Pass the user property to Nav > UserAvatar:
+
+`Nav.js`:
 
 ```js
 import React from 'react';
@@ -148,14 +154,62 @@ import React from 'react';
 
 const UserAvatar = () => (
   <div className="user-avatar">
-    User Avatar
+    UserAvatar
   </div>
 );
 
 export default UserAvatar
 ```
 
-We have passed `user` to the 
+## Prop Drilling the Sidebar
+
+```js
+import React from 'react';
+
+import Sidebar from './Sidebar'
+import Content from './Content'
+
+const Body = () => (
+  <div className="body">
+    <Sidebar />
+    <Content />
+  </div>
+);
+
+export default Body
+```
+
+Sidebar
+
+```js
+import React from 'react';
+
+import UserStats from './Userstats'
+
+const Sidebar = () => (
+  <div className="sidebar">
+    <UserStats />
+  </div>
+);
+
+export default Sidebar
+```
+
+UserStats:
+
+```js
+import React from 'react';
+
+import UserAvatar from './UserAvatar'
+
+const UserStats = () => (
+  <div className="UserStats">
+    <UserAvatar />
+  </div>
+);
+
+export default UserStats
+```
 
 In terms of prop drilling - it works just fine. Prop drilling is a perfectly valid pattern and core to the way React works. But deep drilling can be annoying to write and it gets more annoying when you have to pass down a lot of props (instead of just one).
 
