@@ -1,6 +1,6 @@
 import React from 'react';
 
-import UserStats from './UserStats'
+import UserStats from './Userstats'
 
 const Sidebar = () => (
   <div className="sidebar">
